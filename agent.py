@@ -81,7 +81,6 @@ def play(state, game):
 	else:
 		Q = model.predict(state)
 		action = np.argmax(Q)
-	machine_action = action_to_action_vector(action)
 	game_action = machine_to_action(action, game)
 	while not game_action:
 		# Make sure the game_action is valid
@@ -91,8 +90,7 @@ def play(state, game):
 			Q = model.predict(state)
 			action = np.argmax(Q)
 		game_action = machine_to_action(action, game)
-		machine_action = action_to_action_vector(action)
-	return [machine_action, game_action]
+	return [action, game_action]
 
 
 # Creating holders for states, actions and rewards
@@ -101,7 +99,7 @@ states = {"pl_1": {"points":[],"state":[]}, "pl_2": {"points":[],"state":[]}}
 actions = {"pl_1": [], "pl_2": []}
 rewards = {"pl_1": [], "pl_2": []}
 new_states = {"pl_1": [], "pl_2":[]}
-
+finished = {"pl_1" : [], "pl_2":[]}
 
 print("Start Observing ...")
 c = 0
@@ -136,6 +134,7 @@ for t in range(number_of_games):
 		rewards[game.startingPlayer].append(points_2 - points_1)
 		# Update the states holder
 		new_states[game.startingPlayer].append(state)
+		finished[game.startingPlayer].append(False)
 		# Update the 
 		states[game.startingPlayer]["state"].append(state)
 		# Get action from model
@@ -154,13 +153,20 @@ for t in range(number_of_games):
 	state = state_to_machine(game)
 	new_states["pl_1"].append(state)
 	new_states["pl_2"].append(state)
+	finished["pl_1"].append(True)
+	finished["pl_2"].append(True)
 	# Update rewards
-	points_1 = states[game.startingPlayer]["points"][-2]
-	points_2 = states[game.startingPlayer]["points"][-1]
-	rewards[game.startingPlayer].append(points_2 - points_1)
+	points_1 = states["pl_1"]["points"][-2]
+	points_2 = states["pl_1"]["points"][-1]
+	rewards["pl_1"].append(points_2 - points_1)
+	points_1 = states["pl_2"]["points"][-2]
+	points_2 = states["pl_2"]["points"][-1]
+	rewards["pl_2"].append(points_2 - points_1)
+
 	print("Game " + str(t) + " finished.")
 
 print("Finished observing")
+print("Check Data")
 print(len(states["pl_1"]["state"]))
 print(len(states["pl_2"]["state"]))
 print(len(actions["pl_1"]))
@@ -169,7 +175,39 @@ print(len(rewards["pl_1"]))
 print(len(rewards["pl_2"]))
 print(len(new_states["pl_1"]))
 print(len(new_states["pl_2"]))
+print(len(finished["pl_1"]))
+print(len(finished["pl_2"]))
+
+# Create a 5 Tuple with state action reward future_state and finished
+D_1 = list(zip(states["pl_1"]["state"], actions["pl_1"], rewards["pl_1"], new_states["pl_1"], finished["pl_1"]))
+D_2 = list(zip(states["pl_2"]["state"], actions["pl_2"], rewards["pl_2"], new_states["pl_2"], finished["pl_2"]))
+D = D_1 + D_2
+print(len(D))
+rand_D = D
 # Learning the game
 print("Start Learning...")
+np.random.shuffle(rand_D)
+minibatch = rand_D[0:mb_size]
 
-minibatch = np.random.randint(mb_size)
+inputs = np.zeros((mb_size, 48))
+targets = np.zeros((mb_size, 2))
+
+for i in range(mb_size):
+	print("Batch no " + str(i))
+	state = minibatch[i][0]
+	action = minibatch[i][1]
+	reward = minibatch[i][2]
+	state_new = minibatch[i][3]
+	finished = minibatch[i][4]
+
+	inputs[i] = state
+	targets[i] = model.predict(state)
+
+	if finished:
+		targets[i, action] = reward
+	else:
+		Q_sa = model.predict(state_new)
+		targets[i, action] = reward + gamma*np.max(Q_sa)
+print("Learning Finished.")
+
+print("Let's see what the model can do.")
