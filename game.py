@@ -37,6 +37,13 @@ class Game(object):
 	def generateCard(self, color, number):
 		return {"color": color, "number": number}
 
+	def order(self, card):
+		l = len(self.numbers)
+		multiplier = self.colors.index(card["color"])
+		num = self.numbers.index(card["number"])
+
+		return multiplier*l + num + 1
+
 	# Distributes Cards to the players equally
 	# Returns a map with keys encoded as the player names
 	def distributeCards(self, players, cards):
@@ -51,7 +58,6 @@ class Game(object):
 				adder = i*n_cards
 				start = adder
 				end = adder + n_cards
-				out_cards[pl] = rand_cards[int(start):int(end)]
+				pl_cards = rand_cards[int(start):int(end)]
+				out_cards[pl] = sorted(pl_cards, key=self.order)
 			return out_cards
-
-	# Returns the next round/turn

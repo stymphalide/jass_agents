@@ -20,3 +20,6 @@ class Level_1(game.Game):
 		self.history = []
 		self.cards = self.generateCards()
 		self.playerCards = self.distributeCards(self.players, self.cards)
+
+
+	
