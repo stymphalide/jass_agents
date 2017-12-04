@@ -4,6 +4,15 @@ class Game(object):
 	A Class with the basic behavior of a game
 	"""
 
+	def __init__(self):
+		self.players = []
+		self.colors = []
+		self.numbers = []
+		self.groups = []
+		self.gameType = ""
+		self.round = 0
+		self.turn = 0
+
 	# Returns a n+k row vector with the first n places encodng the color,
 	# the second k places the number
 	def encodeCard(self, card):
@@ -26,22 +35,23 @@ class Game(object):
 
 	# Generate a single card
 	def generateCard(self, color, number):
-		return {"color": color, "number", number}
+		return {"color": color, "number": number}
 
 	# Distributes Cards to the players equally
 	# Returns a map with keys encoded as the player names
-	def distributeCards(self, players cards):
+	def distributeCards(self, players, cards):
 		if len(cards) % len(players) != 0:
 			print("Error: The cards can't be distributed evenly")
 		else:
 			n_cards = len(cards) / len(players)
-			rand_cards = np.random.shuffle(cards)
+			rand_cards = cards
+			np.random.shuffle(rand_cards)
 			out_cards = {}
 			for i, pl in enumerate(players):
 				adder = i*n_cards
 				start = adder
 				end = adder + n_cards
-				out_cards[pl] = rand_cards[start:end]
+				out_cards[pl] = rand_cards[int(start):int(end)]
 			return out_cards
 
-	# next 
+	# Returns the next round/turn
