@@ -10,7 +10,7 @@ class Game(object):
 		self.numbers = []
 		self.groups = [{}, {}]
 		self.history = [[], []]
-		self.table
+		self.table = []
 		self.gameType = ""
 		self.round = 0
 		self.turn = 0
@@ -40,6 +40,17 @@ class Game(object):
 	# Generate a single card
 	def generateCard(self, color, number):
 		return {"color": color, "number": number}
+
+	# Validate whether a card can be played
+	def valid(self, playCard, firstCard, playerCards):
+		if playCard["color"] == firstCard["color"]:
+			return True
+		else:
+			req_color = firstCard["color"]
+			for c in playerCards:
+				if c["color"] == req_color:
+					return False
+			return True
 
 	# Gives the order of the cards, so that we acquire a sorted set of cards
 	def order(self, card):
@@ -83,6 +94,12 @@ class Game(object):
 
 	# Returns the next player on turn and moves the cards around
 	def nextTurn(self, card, player):
+		# Check whether card is valid
+
+		if len(self.table) != 0:
+			valid = self.valid(card, self.table[0], self.playerCards[player])
+			if not valid:
+				return player
 		self.table.append(card)
 		self.playerCards[player].remove(card)
 		self.turn += 1
@@ -104,7 +121,17 @@ class Game(object):
 			if new_player in g["players"]:
 				g["points"] += self.sum_points(self.table)
 				self.history[i].append(self.table)
+				# Add five points if the game is over
+				if len(self.playerCards[new_player]) == 0:
+					g["points"] += 5
+					# Add 100 points when a match happens
+					l = len(self.cards) / len(self.players)
+					if len(self.history[i]) == l:
+						g["points"] += 100
+
 		self.table = []
+		self.turn = 0
+		self.round += 1
 		return new_player
 
 	# Returns a value between 0 and len(cards)

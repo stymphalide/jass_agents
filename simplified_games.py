@@ -12,11 +12,15 @@ class Level_1(game.Game):
 	"""
 	def __init__(self):
 		self.players = ["pl_1", "pl_2"]
-		self.roundPlayer = "pl_1"
+		self.startingPlayer = "pl_1"
 		self.colors = ["hearts", "spades"]
-		self.numbers = ["ace", "6"]
+		self.numbers = ["6", "ace"]
 		self.gameType = "up"
 		self.cardsTable = []
+		self.history = [[], []]
+		self.round = 0
+		self.turn = 0
+		self.table = []
 		self.groups = [{"points":0,"players":"pl_1"}, {"points":0,"players":"pl_2"}]
 		self.cards = self.generateCards()
 		self.playerCards = self.distributeCards(self.players, self.cards)
