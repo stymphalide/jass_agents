@@ -25,10 +25,10 @@ def save_model(file_path):
 
 
 # Hyperparameters
-epsilon = 0.7
+epsilon = 0.3
 gamma = 0.99
-number_of_games = 1000
-mb_size = 3000
+number_of_games = 10000
+mb_size = 30000
 c = 0
 
 # Returns a vector of length input_size
@@ -265,7 +265,10 @@ def learn(rand_D):
 			Q_sa = model.predict(state_new)
 			targets[i, action] = reward + gamma*np.max(Q_sa)
 		model.train_on_batch(inputs, targets)
+
 	print("Learning Finished.")
+	print("model saved")
+	save_model("model_2.h5")
 
 t = 0
 def evaluate():
@@ -328,11 +331,11 @@ def evaluate():
 
 #rand_D = observe()
 #learn(rand_D)
-print("Let's see what the model can do.")
-evaluate()
+#print("Let's see what the model can do.")
+#evaluate()
 # Save the model
-#save_model(file_path)
-print("Saved Model")
+#save_model("model_2.h5")
+#print("Saved Model")
 
 
 
