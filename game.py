@@ -9,9 +9,12 @@ class Game(object):
 		self.colors = []
 		self.numbers = []
 		self.groups = []
+		self.table
 		self.gameType = ""
 		self.round = 0
 		self.turn = 0
+		self.roundPlayer = ""
+		self.playerCards = []
 
 	# Returns a n+k row vector with the first n places encodng the color,
 	# the second k places the number
@@ -37,6 +40,7 @@ class Game(object):
 	def generateCard(self, color, number):
 		return {"color": color, "number": number}
 
+	# Gives the order of the cards, so that we acquire a sorted set of cards
 	def order(self, card):
 		l = len(self.numbers)
 		multiplier = self.colors.index(card["color"])
@@ -61,3 +65,18 @@ class Game(object):
 				pl_cards = rand_cards[int(start):int(end)]
 				out_cards[pl] = sorted(pl_cards, key=self.order)
 			return out_cards
+
+	# Returns the next player on turn and moves the cards around
+	def nextTurn(self, card, player):
+		self.table.append(card)
+		self.playerCards[player].remove(card)
+		self.turn += 1
+		l = len(self.players)
+		idx_pl = self.players.index(player)
+		return self.players[(idx_pl + 1) % l]
+
+	# Determines the next round
+	# Moves cards around and distributes points
+	# Returns the next player on Turn
+	def nextRound(self, startingPlayer):
+		

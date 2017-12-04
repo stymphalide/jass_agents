@@ -12,6 +12,7 @@ class Level_1(game.Game):
 	"""
 	def __init__(self):
 		self.players = ["pl_1", "pl_2"]
+		self.roundPlayer = "pl_1"
 		self.colors = ["hearts", "spades"]
 		self.numbers = ["ace", "6"]
 		self.gameType = "up"
@@ -22,4 +23,3 @@ class Level_1(game.Game):
 		self.playerCards = self.distributeCards(self.players, self.cards)
 
 
-	
