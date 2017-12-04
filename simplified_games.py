@@ -18,7 +18,6 @@ class Level_1(game.Game):
 		self.gameType = "up"
 		self.cardsTable = []
 		self.groups = [{"points":0,"players":"pl_1"}, {"points":0,"players":"pl_2"}]
-		self.history = []
 		self.cards = self.generateCards()
 		self.playerCards = self.distributeCards(self.players, self.cards)
 

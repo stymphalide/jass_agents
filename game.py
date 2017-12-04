@@ -8,7 +8,8 @@ class Game(object):
 		self.players = []
 		self.colors = []
 		self.numbers = []
-		self.groups = []
+		self.groups = [{}, {}]
+		self.history = [[], []]
 		self.table
 		self.gameType = ""
 		self.round = 0
@@ -48,6 +49,20 @@ class Game(object):
 
 		return multiplier*l + num + 1
 
+	# Returns points of a specific card
+	def points(self, card):
+		points = {"10" : 10, "jack":2, "queen":3, "king":4, "ace":11}
+		if(card["number"] in points):
+			return points[card["number"]]
+		else:
+			return 0
+	# Map several cards on the point function and add up
+	def sum_points(self, cards):
+		points = 0
+		for c in cards:
+			points += self.points(c)
+		return points
+
 	# Distributes Cards to the players equally
 	# Returns a map with keys encoded as the player names
 	def distributeCards(self, players, cards):
@@ -75,8 +90,34 @@ class Game(object):
 		idx_pl = self.players.index(player)
 		return self.players[(idx_pl + 1) % l]
 
-	# Determines the next round
+	# Handles the next round
 	# Moves cards around and distributes points
 	# Returns the next player on Turn
 	def nextRound(self, startingPlayer):
-		
+		add = self.determineWinnerCard(self.table)
+		idx = self.players.index(startingPlayer)
+		l = len(self.players)
+		new_idx = (idx + add) % l
+		new_player = self.players[new_idx]  
+
+		for i, g in enumerate(self.groups):
+			if new_player in g["players"]:
+				g["points"] += self.sum_points(self.table)
+				self.history[i].append(self.table)
+		self.table = []
+		return new_player
+
+	# Returns a value between 0 and len(cards)
+	# Corresponding to the index of the card
+	def determineWinnerCard(self, cards):
+		req_color = cards[0]["color"]
+		highest_card = cards[0]
+		highest_score = self.numbers.index(cards[0]["number"])
+		for c in cards[1:]:
+			if c["color"] == req_color:
+				score = self.numbers.index(c["number"])
+				if  score > highest_score :
+					highest_score = score
+					highest_card = c
+		return cards.index(highest_card)
+
