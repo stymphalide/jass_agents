@@ -42,7 +42,14 @@ class Game(object):
 		return {"color": color, "number": number}
 
 	# Validate whether a card can be played
-	def valid(self, playCard, firstCard, playerCards):
+	def valid(self, playCard, firstCard=None, playerCards=None):
+		if playerCards == None:
+			playerCards = self.playerCards[self.startingPlayer]
+		if firstCard == None:
+			if len(self.table) > 0:
+				firstCard = self.table[0]
+			else:
+				return True
 		if playCard["color"] == firstCard["color"]:
 			return True
 		else:

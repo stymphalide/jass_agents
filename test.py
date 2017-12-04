@@ -5,8 +5,10 @@ import game as g
 class MyTest(unittest.TestCase):
 	def test(self):
 		# Can the game create valid games?
-		card = g.generateCard("hearts", "ace")
-		self.assertEqual(card, {"color":"hearts", "number", "10"})
+		game = g.Game()
+		card = game.generateCard("hearts", "ace")
+		self.assertEqual(card, {"color":"hearts", "number": "ace"})
 		# Does it assign it the right points
-		self.assertEqual(g.points(card), 11)
-		
+		self.assertEqual(game.points(card), 11)
+test = MyTest()
+test.test()
