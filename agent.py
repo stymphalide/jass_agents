@@ -10,16 +10,17 @@ from simplified_games import Level_1 as G
 # The input size of the vector
 input_size = 4*(2+2+4+4) # I'd prefer 4x(2+2+4+4)
 # Make the model
-"""
+
 model = Sequential()
 model.add(Dense(10, kernel_initializer='uniform', input_shape=(input_size,), activation='relu' ))
 model.add(Dense(5, kernel_initializer='uniform', activation='relu'))
+model.add(Dense(5, kernel_initializer='uniform', activation='relu'))
+model.add(Dense(5, kernel_initializer='uniform', activation='relu'))
 model.add(Dense(2, kernel_initializer='uniform', activation='linear')) 
 model.compile(loss='mse', optimizer='adam', metrics=['accuracy'])
-"""
 
-file_path = "model_1.h5"
-model = load_model(file_path)
+#file_path = "model_1.h5"
+#model = load_model(file_path)
 def save_model(file_path):
 	model.save(file_path)
 
@@ -28,7 +29,7 @@ def save_model(file_path):
 epsilon = 0.3
 gamma = 0.99
 number_of_games = 10000
-mb_size = 30000
+mb_size = 3000
 c = 0
 
 # Returns a vector of length input_size
@@ -334,8 +335,6 @@ def evaluate():
 #print("Let's see what the model can do.")
 #evaluate()
 # Save the model
-#save_model("model_2.h5")
-#print("Saved Model")
 
 
 
