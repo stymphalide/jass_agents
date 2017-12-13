@@ -134,7 +134,7 @@ class Game(object):
 					# Add 100 points when a match happens
 					l = len(self.cards) / len(self.players)
 					if len(self.history[i]) == l:
-						g["points"] += 100
+						g["points"] += 10
 
 		self.table = []
 		self.turn = 0

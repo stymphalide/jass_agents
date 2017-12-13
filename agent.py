@@ -14,19 +14,17 @@ input_size = 4*(2+2+4+4) # I'd prefer 4x(2+2+4+4)
 model = Sequential()
 model.add(Dense(10, kernel_initializer='uniform', input_shape=(input_size,), activation='relu' ))
 model.add(Dense(5, kernel_initializer='uniform', activation='relu'))
-model.add(Dense(5, kernel_initializer='uniform', activation='relu'))
-model.add(Dense(5, kernel_initializer='uniform', activation='relu'))
 model.add(Dense(2, kernel_initializer='uniform', activation='linear')) 
 model.compile(loss='mse', optimizer='adam', metrics=['accuracy'])
 
-#file_path = "model_1.h5"
+#file_path = "model_learnt_policy.h5"
 #model = load_model(file_path)
 def save_model(file_path):
 	model.save(file_path)
 
 
 # Hyperparameters
-epsilon = 0.3
+epsilon = 0.7
 gamma = 0.99
 number_of_games = 10000
 mb_size = 3000
@@ -91,6 +89,17 @@ def action_space(cards, game):
 			out.append(c)
 	return out
 
+def choose_valid_action(Q, game):
+	cards = game.playerCards[game.startingPlayer]
+	max_n = 0
+	max_value = 0
+	for i, c in enumerate(cards):
+		if game.valid(c, playerCards=cards):
+			if max_value < Q[0,i]:
+				max_n = i
+	return max_n
+
+
 def play(state, game, epsilon=0.7):
 	# Every once in a while take a random action
 	if np.random.random() <= epsilon:
@@ -102,7 +111,7 @@ def play(state, game, epsilon=0.7):
 		c += 1
 	else:
 		Q = model.predict(state)
-		action = np.argmax(Q)
+		action = choose_valid_action(Q, game)
 	game_action = machine_to_action(action, game)
 	while not game_action:
 		print(c)
@@ -113,13 +122,13 @@ def play(state, game, epsilon=0.7):
 			action = np.random.randint(2)
 		else:
 			Q = model.predict(state)
-			action = np.argmax(Q)
+			action = choose_valid_action(Q, game)
 		game_action = machine_to_action(action, game)
 	return [action, game_action]
 
 # Creating holders for states, actions and rewards
 # As well as new_states
-def observe():
+def observe(input_cards=None):
 	states = {"pl_1": {"points":[],"state":[]}, "pl_2": {"points":[],"state":[]}}
 	actions = {"pl_1": [], "pl_2": []}
 	rewards = {"pl_1": [], "pl_2": []}
@@ -131,6 +140,9 @@ def observe():
 		print("Game " + str(t) + " started.")
 		# Play a whole game with inputs from the model
 		game = G()
+		if input_cards:
+			cards = np.random.choice(input_cards)
+			game.playerCards = cards
 		if t % 50 == 0:
 			print("Initialise Game.")
 		# Initialise game
@@ -272,9 +284,11 @@ def learn(rand_D):
 	save_model("model_2.h5")
 
 t = 0
-def evaluate():
+def evaluate(cards=None):
 	# Play a whole game with inputs from the model
 	game = G()
+	if cards:
+		game.playerCards = cards
 
 	if t % 50 == 0:
 		print("Initialised Game.")
@@ -288,7 +302,7 @@ def evaluate():
 			print("table:")
 			print(game.table)
 		# Get action from model
-		action = play(state, game, 0.1)
+		action = play(state, game, 0.0)
 		if t % 50 == 0:
 			print("Plays: ")
 			print(action[1])
